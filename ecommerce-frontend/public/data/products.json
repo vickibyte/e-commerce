@@ -1,0 +1,99 @@
+[{
+        "id": 1,
+       "name": "classic brown shirt",
+        "price": "12000",
+        "image": "images/product-1.jpg",
+        "category": "Men",
+        "rating": "4.5"
+    },
+    {
+        "id": 2,
+       "name": "Orange coloured shirt",
+        "price": "8500",
+        "image": "images/product-2.jpg",
+        "category": "Unisex",
+        "rating": "4.6"
+
+    },
+     {
+        "id": 3,
+       "name": "white sneakers",
+        "price": "19000",
+        "image": "images/product-3.jpg",
+        "category": "Unisex",
+        "rating": "4.8"
+    },
+    {
+        "id": 4,
+       "name": "Fancy leather wristwatch",
+        "price": "9500",
+        "image": "images/product-4.jpg",
+        "category": "Men",
+        "rating": "4.5"
+    },
+
+     {
+        "id": 5,
+       "name": "Silver Shirt for men",
+        "price": "15000",
+        "image": "images/product-5.jpg",
+        "category": "Men",
+        "rating": "4.9"
+    },
+     {
+        "id": 6,
+       "name": "Crochet singlet for women",
+        "price": "5000",
+        "image": "images/product-6.jpg",
+        "category": "Women",
+        "rating": "5"
+    },
+     {
+        "id": 7,
+       "name": "African print gown",
+        "price": "18500",
+        "image": "images/product-7.jpg",
+        "category": "Women",
+        "rating": "5"
+    },
+     {
+        "id": 8,
+       "name": "Coffee coloured pants",
+        "price": "7000",
+        "image": "images/product-8.jpg",
+        "category": "Women",
+        "rating": "4.0"
+    },
+     {
+        "id": 9,
+       "name": "Office blazer",
+        "price": "25000",
+        "image": "images/product-9.jpg",
+        "category": "Women",
+        "rating": "4.8"
+    },
+     {
+        "id": 10,
+       "name": "Grey shirt",
+        "price": "11000",
+        "image": "images/product-10.jpg",
+        "category": "Men",
+        "rating": "5"
+    },
+     {
+        "id": 11,
+       "name": "Black Hoodie",
+        "price": "13000",
+        "image": "images/product-11.jpg",
+        "category": "Unisex",
+        "rating": "4"
+    },
+     {
+        "id": 12,
+       "name": "Orange singlet",
+        "price": "4500",
+        "image": "images/product-12.jpg",
+        "category": "Women",
+        "rating": "4"
+    }
+]
