@@ -3,8 +3,7 @@
  * @copyright 2025 Bukola David
  */
 
-import { ShoppingCart, Star, ShoppingBag, Search, Shirt } from "lucide-react";
-import {dress} from "@lucide/lab";
+import { ShoppingCart, Star, ShoppingBag, Shirt, Users  } from "lucide-react";
 import { useEffect, useState, type JSX } from "react";
 import { ProductType } from "@/types/types";
 
@@ -12,27 +11,38 @@ import { ProductType } from "@/types/types";
 
 const icons: Record <string, JSX.Element> = {
     Men: <Shirt className="w-4 h-4 text-orange-500" />,
-    Women: <dress className="w-4 h-4 text-orange-500" />,
-    Unisex: <ShoppingBag className="w-4 h-4 text-orange-500" />
+    Women: <ShoppingBag className="w-4 h-4 text-orange-500" />,
+    Unisex: <Users className="w-4 h-4 text-orange-500" />,
+    All: <Star className="w-4 h-4 text-orange-500" />
 };
 
 const FeaturedProducts = () =>{
 
+    const [uniqueCategories, setUniqueCategories] = useState<string[]>([]);
+
+useEffect(() => {
+  fetch("/data/products.json")
+    .then((res) => res.json())
+    .then((data: ProductType[]) => {
+      setProducts(data);
+      const unique = ["All", ...Array.from(new Set(data.map((p) => p.category)))];
+      setUniqueCategories(unique);
+    })
+    .catch((err) => console.error("Error loading products:", err));
+}, []);
+
+
     const [products, setProducts] = useState<ProductType[]>([]);
-    const [category, setCategory] = useState<string>("ALL");
+    const [category, setCategory] = useState<string>("All");
 
-    useEffect(() => {
-        fetch("/data/products.json")
-        .then(res => res.json())
-        .then(setProducts)
-        .catch(err => console.error("Error loading products:", err));
-    }, []);
+    // Filter products based on selected category
 
 
-    const filtered = category === "ALL"
+
+    const filtered = category === "All"
     ? products
-    : products.filter(item => item.category );
-    const categories = ["ALL", ...new Set(products.map(p => p.category))];
+    : products.filter(item => item.category === category);
+    // const categories = ["All", ...new Set(products.map(p => p.category))];
 
 
     return(
@@ -49,12 +59,12 @@ const FeaturedProducts = () =>{
 
                 {/* category button */}
 
-                <div className="">
-                    {categories.map((cat) => (
+                <div className="flex flex-wrap gap-2 mb-8 justify-center transition-all duration-300">
+                    {uniqueCategories.map((cat) => (
                         <button
                         key={cat}
                         onClick={() => setCategory(cat)}
-                        className={`px-3 py-1  border-rounded-full text-sm ${
+                        className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm transition-all duration-300 ${
                             cat === category ? "bg-orange-500 text-white" : "bg-white text-black"
                         }`}
                         >
@@ -72,7 +82,7 @@ const FeaturedProducts = () =>{
                             <img 
                             src={product.image} 
                             alt={product.name}
-                            className="w-fill h-64 object-cover"
+                            className="w-full h-64 object-cover"
                             />
                             <div className="p-4">
                                 <h3 className="text-xl font-semibold mb-1">
@@ -81,8 +91,13 @@ const FeaturedProducts = () =>{
                                 <p className="text-sm">{product.category}</p>
                                 <p className="text-gray-600 mb-4">₦{product.price}</p>
 
-                                <p className="">
-                                    <Star className="w-4 h-4 text-yellow-500"/>
+                                <p className="flex items-center gap-1 mb-2">
+                                  {Array.from({ length: 5}).map((_, i) => (
+                                    <Star 
+                                    key={i} 
+                                    className={`w-4 h-4 ${i < product.rating ? "text-yellow-500" : "text-gray-300"}`}
+                                    />
+                                  ))}  
                                 <span>{product.rating}</span></p>
 
                                 <button className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-orange-500 transition">
