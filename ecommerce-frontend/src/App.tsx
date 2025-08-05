@@ -1,23 +1,34 @@
-import Header from './components/Header';
+
 import Hero from './components/Hero';
 import FeaturedProducts from './components/FeaturedProducts';
 import './App.css'
 import { useLoading } from "./context/LoadingContext";
 import FullPageLoader from "./components/FullPageLoader";
-import Footer from './components/Footer';
+import Layout from './components/Layout';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   const { loading } = useLoading();
 
   return (
-    <>
-      <Header />
-      <Hero />
-       {loading && <FullPageLoader />}
-      <FeaturedProducts />
+    <Router>
+      <Layout>
+        {loading && <FullPageLoader />}
 
-      <Footer />
-    </>
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Hero />
+              <FeaturedProducts />
+            </>
+          } />
+
+          {/* Fallback for any unknown route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
+    </Router>
   )
 }
 

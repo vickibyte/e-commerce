@@ -42,7 +42,7 @@ const Header = () => {
 
 
           
-          <a href="/" className="flex items-center gap-1"><User2 className=" text-orange-300 w-4 h-4" />Login/Register</a>
+          <a href="login" className="flex items-center gap-1"><User2 className=" text-orange-300 w-4 h-4" />Login/Register</a>
         
 
       </div>
