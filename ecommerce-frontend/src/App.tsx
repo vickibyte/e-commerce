@@ -7,6 +7,9 @@ import FullPageLoader from "./components/FullPageLoader";
 import Layout from './components/Layout';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NotFound from "./pages/NotFound";
+import Cart from "./pages/Cart";
+import Wishlist from './pages/Wishlist';
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   const { loading } = useLoading();
@@ -19,12 +22,19 @@ const App = () => {
         <Routes>
           <Route path="/" element={
             <>
+              <Toaster position="top-right" />
               <Hero />
               <FeaturedProducts />
             </>
           } />
 
-          {/* Fallback for any unknown route */}
+          {/* Define other routes here */}
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+
+
+          
+           {/* Fallback for any unknown route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

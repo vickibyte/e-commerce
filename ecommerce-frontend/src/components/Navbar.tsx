@@ -7,7 +7,7 @@ import '../index.css'
 
 const Navbar = () => {
  const navItems = [
-  { label: 'Home', link: '#home', className: 'nav-link text-gray-700 font-bold' },
+  { label: 'Home', link: '/', className: 'nav-link text-gray-700 font-bold' },
   { label: 'Shop', link: '#shop', className: 'nav-link text-gray-700' },
   { label: 'Accessories & Bags', link: '#accessories-and-bags', className: 'nav-link text-gray-700' },
   { label: 'Health & Beauty', link: '#health-and-beauty', className: 'nav-link text-gray-700' },

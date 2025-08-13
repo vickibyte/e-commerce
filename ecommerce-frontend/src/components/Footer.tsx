@@ -19,7 +19,9 @@ const Footer = () => {
 
         {/* Company Info */}
         <div>
-          <h2 className="text-xl font-bold mb-4">ShopMate</h2>
+          <a
+          href="/"
+          className="text-xl font-bold mb-4">ShopMate</a>
           <p className="flex items-start gap-2 mb-2">
             <MapPin size={16} /> Wukari, Taraba, Nigeria
           </p>
