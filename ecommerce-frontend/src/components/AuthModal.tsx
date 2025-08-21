@@ -1,67 +1,75 @@
-import { useState, useContext } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { loginUser, registerUser, checkUsernameExists } from "../services/authService";
-import { AuthContext } from "../context/AuthContext";
+import React, { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { X } from "lucide-react";
+import { registerUser, loginUser, checkUsernameAvailability } from "../lib/api";
 
-type AuthModalProps = {
+
+interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-};
+}
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
-
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [loadingUsername, setLoadingUsername] = useState(false);
   const [error, setError] = useState("");
-  const [usernameError, setUsernameError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
 
-  const { login } = useContext(AuthContext);
+  const validatePassword = (password: string) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password);
 
-  const validatePassword = (value: string) => {
-    const regex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!regex.test(value)) {
-      setPasswordError(
-        "Must have uppercase, lowercase, number, special char, min 8 chars"
-      );
-    } else {
-      setPasswordError("");
+  useEffect(() => {
+    if (!isLogin && form.username.trim()) {
+      const delayDebounce = setTimeout(async () => {
+        setLoadingUsername(true);
+        try {
+          const exists = await checkUsernameAvailability(form.username.trim());
+          setUsernameAvailable(!exists);
+        } catch {
+          setUsernameAvailable(null);
+        }
+        setLoadingUsername(false);
+      }, 500);
+      return () => clearTimeout(delayDebounce);
     }
-    setPassword(value);
-  };
+  }, [form.username, isLogin]);
 
-  const handleUsernameBlur = async () => {
-    if (!username) return;
-    try {
-      const exists = await checkUsernameExists(username);
-      setUsernameError(exists ? "Username already taken" : "");
-    } catch {
-      setUsernameError("Error checking username");
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     try {
       if (isLogin) {
-        const res = await loginUser(email, password);
-        login(res.data.token);
+        const res = await loginUser(form.email, form.password);
+        localStorage.setItem("token", res.data.token);
+        onClose();
       } else {
-        if (usernameError || passwordError) return;
-        await registerUser(firstName, lastName, username, email, password);
-        const res = await loginUser(email, password);
-        login(res.data.token);
+        if (!validatePassword(form.password)) {
+          setError("Password must be at least 8 characters, include uppercase, lowercase, and a number.");
+          return;
+        }
+        if (usernameAvailable === false) {
+          setError("Username is already taken.");
+          return;
+        }
+        const res = await registerUser(form);
+        localStorage.setItem("token", res.data.token);
+        onClose();
       }
-      onClose();
     } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid credentials");
+      setError(err.response?.data?.message || "Something went wrong.");
     }
   };
 
@@ -79,150 +87,110 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            transition={{type: "spring", stiffness: 300, damping: 25}}
           >
             <button
-              className="auth-close"
               onClick={onClose}
+              className="auth-close"
             >
-              ✖
+              <X size={20} />
             </button>
+            <h2 className="text-2xl font-bold mb-4 text-orange-500">
+              {isLogin ? "Welcome Back" : "Create Account"}
+            </h2>
 
-            <div className="h-full relative">
-              <AnimatePresence mode="wait">
-                {isLogin ? (
-                  <motion.div
-                    key="login"
-                    initial={{ x: "100%", opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: "-100%", opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <h2 className="text-2xl font-bold mb-4">Login</h2>
-                    {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+            {error && <p className="text-red-500 mb-2">{error}</p>}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="w-full border p-2 rounded"
-                      />
-                      <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="w-full border p-2 rounded"
-                      />
-                      <button
-                        type="submit"
-                        className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600"
-                      >
-                        Login
-                      </button>
-                    </form>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {!isLogin && (
+                <>
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="First Name"
+                    value={form.firstName}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Last Name"
+                    value={form.lastName}
+                    onChange={handleChange}
+                    className="w-full border p-2 rounded"
+                    required
+                  />
+                  <div>
+                    <input
+                      type="text"
+                      name="username"
+                      placeholder="Username"
+                      value={form.username}
+                      onChange={handleChange}
+                      className="w-full border p-2 rounded"
+                      required
+                    />
+                    {loadingUsername && (
+                      <p className="text-sm text-gray-500">Checking...</p>
+                    )}
+                    {usernameAvailable === true && (
+                      <p className="text-sm text-green-500">Username available</p>
+                    )}
+                    {usernameAvailable === false && (
+                      <p className="text-sm text-red-500">Username taken</p>
+                    )}
+                  </div>
+                </>
+              )}
 
-                    <p className="auth-switch">
-                      New here?{" "}
-                      <span
-                        className="text-orange-500 cursor-pointer"
-                        onClick={() => setIsLogin(false)}
-                      >
-                        Register
-                      </span>
-                    </p>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="register"
-                    initial={{ x: "-100%", opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: "100%", opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className=""
-                  >
-                    <h2 className="text-2xl font-bold mb-4">Register</h2>
-                    {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+                required
+              />
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <input
-                        type="text"
-                        placeholder="First Name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                        
-                      />
-                      <input
-                        type="text"
-                        placeholder="Last Name"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                       
-                      />
-                      <input
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        onBlur={handleUsernameBlur}
-                        required
-                        className={`w-full border p-2 rounded ${
-                          usernameError ? "border-red-500" : ""
-                        }`}
-                      />
-                      {usernameError && (
-                        <p className="text-red-500 text-xs">{usernameError}</p>
-                      )}
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="w-full border p-2 rounded"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-2 text-sm text-orange-500"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
 
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      
-                      />
-                      <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => validatePassword(e.target.value)}
-                        required
-                        className={`w-full border p-2 rounded ${
-                          passwordError ? "border-red-500" : ""
-                        }`}
-                      />
-                      {passwordError && (
-                        <p className="text-red-500 text-xs">{passwordError}</p>
-                      )}
+              <button
+                type="submit"
+                className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600 transition"
+              >
+                {isLogin ? "Login" : "Register"}
+              </button>
+            </form>
 
-                      <button
-                        type="submit"
-                        className="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600"
-                      >
-                        Register
-                      </button>
-                    </form>
-
-                    <p className="mt-4 text-sm text-center">
-                      Already have an account?{" "}
-                      <span
-                        className="text-orange-500 cursor-pointer"
-                        onClick={() => setIsLogin(true)}
-                      >
-                        Login
-                      </span>
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <p className="auth-switch">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+              <button
+                className="text-orange-500 font-medium"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Register" : "Login"}
+              </button>
+            </p>
           </motion.div>
         </motion.div>
       )}
