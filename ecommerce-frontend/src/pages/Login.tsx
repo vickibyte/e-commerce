@@ -25,7 +25,7 @@ const handleLogin = async (e: React.FormEvent) => {
     // Use context to save both user and token
     login(data.user, data.token);
 
-    toast.success(`Welcome ${data.user.name}!`);
+    toast.success(`Welcome ${data.user.username}!`);
 
     // Redirect based on role
     if (data.user.role === "admin") {

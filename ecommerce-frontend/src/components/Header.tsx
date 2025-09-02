@@ -7,9 +7,9 @@ import { ShoppingCart, User2, MenuIcon, Heart } from "lucide-react";
 import Navbar from "./Navbar";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import AuthModal from "../components/AuthModal";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import "../index.css";
 
 const Header = () => {
@@ -18,7 +18,7 @@ const Header = () => {
   const { wishlistItems } = useWishlist();
 
   // Access authentication context
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
 
   // Modal open/close state
   const [authOpen, setAuthOpen] = useState(false);
@@ -33,7 +33,8 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-white shadow-md">
+    <header className="bg-white shadow-md" >
+      
       {/* ===== Top Header Bar ===== */}
       <div className="bg-gray-50 py-2 px-4 flex justify-between items-center space-x-4 text-sm">
         {/* Currency Selector */}
@@ -51,22 +52,42 @@ const Header = () => {
         </form>
 
         {/* Auth Section — shows Login/Register OR user info */}
-        {user ? (
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1">
+        {user ? ( 
+          <div className="user-menu">
+            {/* Username button */}
+            <button className="user-button">
               <User2 className="text-orange-300 w-4 h-4" />
-              {user.name}
-            </span>
-            <button
-              onClick={logout}
-              className="text-red-500 hover:underline text-sm"
-            >
-              Logout
+              <span className="username">{user.username}</span>
             </button>
+
+            {/* Dropdown Menu */}
+            <div className="user-dropdown">
+              <div className="user-info">
+                <img
+                  src={`https://ui-avatars.com/api/?name=${user.username}&background=FFEDD5&color=F97316`}
+                  alt="profile"
+                  className="user-avatar"
+                />
+                <p className="username">{user.firstName} {user.lastName}</p>
+                <p className="email">{user.email}</p>
+              </div>
+              <div className="user-actions">
+                <button onClick={logout} className="logout-btn">
+                  Profile
+                </button>
+              
+              
+                <button onClick={logout} className="logout-btn">
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         ) : (
           <button
-            onClick={() => setAuthOpen(true)}
+            onClick={() => {
+              if (!user) setAuthOpen(true); // ✅ prevent showing modal if logged in
+            }}
             className="flex items-center gap-1 hover:underline"
           >
             <User2 className="text-orange-300 w-4 h-4" />

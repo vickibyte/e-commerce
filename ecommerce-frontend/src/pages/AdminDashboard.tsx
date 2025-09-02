@@ -7,8 +7,11 @@
 import ProductList from './ProductList';
 import ProductForm from '../components/ProductForm';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
+
 
 const AdminDashboard = () => {
+    const { user } = useAuth();
     const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,6 +23,9 @@ const AdminDashboard = () => {
 
     <div style={{ padding: '2rem' }}>
       <h1>Admin Dashboard</h1>
+      {user && (
+        <p>Welcome {user.username}, <strong>{user.role}</strong></p>
+      )}
       <button onClick={handleLogout}>Logout</button>
       <section style={{ marginBottom: '2rem' }}>
         <h2>Add Product</h2>

@@ -44,6 +44,49 @@ useEffect(() => {
   localStorage.setItem("cartItems", JSON.stringify(cartItems));
 }, [cartItems]);
 
+useEffect(() => {
+  const handleLogin = async () => {
+    // You need the userId from AuthContext
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    // Check if there is a guest cart in localStorage
+    const guestCart = localStorage.getItem("cartItems");
+    let mergedCart: CartItem[] = [];
+
+    if (guestCart) {
+      const guestItems: CartItem[] = JSON.parse(guestCart);
+
+      const res = await fetch(`/api/cart/merge/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guestItems }),
+      });
+      mergedCart = await res.json();
+      localStorage.removeItem("cartItems"); // remove guest cart
+    } else {
+      // just load cart from backend
+      const res = await fetch(`/api/cart/${userId}`);
+      mergedCart = await res.json();
+    }
+
+    setCartItems(mergedCart);
+  };
+
+  window.addEventListener("login", handleLogin);
+
+  return () => window.removeEventListener("login", handleLogin);
+}, []);
+
+
+useEffect(() => {
+  const handleLogout = () => setCartItems([]);
+  window.addEventListener("logout", handleLogout);
+  return () => {
+    window.removeEventListener("logout", handleLogout);
+  };
+}, []);
+
   const addToCart = (product: ProductType, quantity: number = 1) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);

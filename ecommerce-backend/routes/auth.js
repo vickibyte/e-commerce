@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const {protect, adminOnly} = require("../middleware/authMiddleware");
 
+
 const router = express.Router();
+
 
 // Generate JWT token (include role for authorization)
 const generateToken = (user) =>
@@ -111,18 +113,23 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    // include role in token payload
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
     // Send response with token
-    const token = generateToken(user);
+
     res.json({
+      token,
       user: {
         id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
         email: user.email,
         role: user.role,
+        username: user.username,
       },
-      token,
     });
 
   } catch (error) {

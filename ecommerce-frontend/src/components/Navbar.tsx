@@ -4,8 +4,8 @@
  */
 
 import '../index.css'
-import { useAuth } from "../context/AuthContext";
-import { Link  } from "react-router-dom"
+
+
 
 const Navbar = () => {
   const navItems = [
@@ -20,7 +20,7 @@ const Navbar = () => {
     { label: 'Sales', link: '#sales', className: 'nav-link text-gray-700' }
   ];
 
-  const { user, logout } = useAuth();
+
 
   return (
     <nav className="w-full">
@@ -33,19 +33,7 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <>
-              <span>Logged in as {user.name}</span>
-              {user.role === "admin" && <Link to="/admin" className="text-blue-600">Admin Page</Link>}
-              <button onClick={logout} className="ml-2 px-2 py-1 bg-red-500 text-white rounded">
-                Logout
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="text-blue-600">Login</Link>
-          )}
-        </div>
+  
       </div>
     </nav>
   );

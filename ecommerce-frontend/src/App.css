@@ -40,3 +40,100 @@
 .read-the-docs {
   color: #888;
 }
+/* Container for user menu */
+.user-menu{
+  position: relative;
+  display: inline-block;
+}
+/* Username button */
+.user-button{
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  font-weight: 500;
+  gap: 0.25rem;
+}
+
+/* Dropdown menu (hidden by default) */
+.user-dropdown{
+  position: absolute;
+  right: 0;
+  margin-top: 0.5rem;
+  width: 12rem;
+  background: white;
+  border:1px solid  #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  z-index: 50;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show dropdown on hover */
+.user-menu:hover .user-dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* User info section */
+.user-info{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+}
+
+.user-avatar{
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+}
+
+.user-info .username{
+  font-weight: 600;
+  color: #374151;
+}
+
+.user-info .email{
+  font-weight: 400;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* user actions */
+.user-actions{
+  display: flex;
+  justify-content: center;
+
+}
+
+.user-action{
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.user-action:last-child{
+  border-bottom: none;
+}
+
+/* Logout button */
+.logout-btn{
+  display: flex;
+  width: 100%;
+  text-align: left;
+  color: #ef4444;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.logout-btn:hover{
+  background: #f9fafb;
+}
+
+
